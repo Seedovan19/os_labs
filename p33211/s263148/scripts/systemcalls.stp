@@ -1,0 +1,31 @@
+global read, write, start, open, close
+
+probe begin {
+   start = 0
+   printf("%8s\t%8s\t%8s\t%8s\t%8s\n", "Time (s)", "Read (b)", "Write (b)", "Open", "Close")
+}
+
+probe syscall.write {
+    write += count
+}
+
+probe syscall.read {
+    read += count
+}
+
+probe syscall.open {
+    open += 1
+}
+
+probe syscall.close {
+    close += 1
+}
+
+probe timer.ms(1000) {
+    printf("%8d\t%8d\t%8d\t%8d\t%8d\n", start, read, write, open, close)
+    read=0
+    write=0
+    open=0
+    close=0
+    start+=1
+}
